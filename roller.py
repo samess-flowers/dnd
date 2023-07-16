@@ -2,10 +2,14 @@
 '''Roll dice for D&D and such'''
 import argparse
 import random
+import re
 import sys
 
 class DumbassError(Exception):
     '''user was dumbass'''
+
+class DidNotDrop(Exception):
+    '''user was still dumbass'''
 
 def roll(count:int, die: int) -> tuple[int,list]:
     '''Roll count dice of die size,
@@ -34,46 +38,55 @@ def print_results(total:int, results:list) -> None:
 def main() -> None:
     '''Parse args, roll di(c)e'''
     parser = argparse.ArgumentParser()
-    parser.add_argument("dice", help="Something like 1d6", default="1d6", type=str)
+    parser.add_argument("dice", help="Something like 1d6", default="1d6dfault", nargs='?', type=str)
     options = parser.add_mutually_exclusive_group()
     options.add_argument("-a", "--advantage", help="advantage", action="store_true")
     options.add_argument("-d", "--disadvantage", help="disadvantage", action="store_true")
-    options.add_argument("-l", "--drop", "--lowest", "--drop-lowest", help="drop lowest", action="store_true")
+    options.add_argument("-l", "--lowest", help="drop lowest", action="store_true")
     args = parser.parse_args()
 
     if args.advantage:
         result = max(roll(2,20)[1])
-        print("Rolling advantage: {result}")
+        print(f"Rolling advantage: {result}")
         sys.exit(0)
     elif args.disadvantage:
         result = min(roll(2,20)[1])
-        print("Rolling disadvantage: {result}")
+        print(f"Rolling disadvantage: {result}")
         sys.exit(0)
 
     try:
         dice = args.dice
-        if len(dice) < 3 or 'd' not in dice:
-            print("length")
+        if len(dice) < 3 or not re.match(r'\d+d\d+',dice):
+            print(re.match(r'/d+d/d+',dice))
+            print(
+            "ERROR: Incorrect input, expected 1d6 or something like that",
+            file=sys.stderr
+            )
             raise DumbassError
-        count, die = dice.split('d')
+        count, die, *extras = dice.split('d')
         count = int(count)
         die = int(die)
 
         if not isinstance(count,int) or not isinstance(die,int):
             print("type",type(count),type(die))
-            raise DumbassError
-
-        if count < 2 and args.drop:
-            print("must drop two or more dice")
-
-    except DumbassError:
-        print(
+            print(
             "ERROR: Incorrect input, expected 1d6 or something like that",
             file=sys.stderr
             )
+            raise DumbassError
+        if args.lowest and "fault" in extras:
+            count, die = (4,6)
+        if count < 2 and args.lowest:
+            print(
+            "ERROR: Incorrect input, expected '-l 4d6' or something like that",
+            file=sys.stderr
+            )
+            raise DumbassError
+
+    except DumbassError:
         sys.exit(10)
-    if args.drop:
-        print("Rolling {count} d{die}, dropping lowest")
+    if args.lowest:
+        print(f"Rolling {count} d{die}, dropping lowest")
         total, result = roll(count,die)
         result = sorted(result, reverse=True)
         dropped = result[0:(len(result)-1)]
