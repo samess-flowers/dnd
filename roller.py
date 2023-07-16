@@ -20,7 +20,7 @@ def roll(count:int, die: int) -> tuple[int,list]:
     total = sum(results)
     return total, results
 
-def print_results(total:int, results:list) -> None:
+def print_results(total:int, results:list[int]) -> None:
     '''Prints results of a die roll'''
     if len(results) <= 1:
         print(f"Result:\t{results[0]}")
@@ -43,6 +43,15 @@ def disadvantage() -> tuple[int, list]:
     result,results = roll(2,20)
     results = min(results)
     return result, results
+
+def lowest(count:int, dice:int) -> tuple[int, list]:
+    '''Roll count dice'''
+    total, result = roll(count,dice)
+    result = sorted(result, reverse=True)
+    dropped = result[0:(len(result)-1)]
+    total = sum(dropped)
+    return total, result
+
 
 def main() -> None:
     '''Parse args, roll di(c)e'''
@@ -96,15 +105,12 @@ def main() -> None:
         sys.exit(10)
     if args.lowest:
         print(f"Rolling {count} d{die}, dropping lowest")
-        total, result = roll(count,die)
-        result = sorted(result, reverse=True)
-        dropped = result[0:(len(result)-1)]
-        total = sum(dropped)
+        total,result = lowest(count, die)
         print_results(total,result)
-        sys.exit(0)
-    print(f"Rolling {count} d{die}")
-    total, result = roll(count,die)
-    print_results(total, result)
+    else:
+        print(f"Rolling {count} d{die}")
+        total, result = roll(count,die)
+        print_results(total, result)
 
 if __name__ == "__main__":
     main()
