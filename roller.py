@@ -56,14 +56,15 @@ def roll_stats(straight:bool=False) -> tuple[dict, dict]:
     '''Roll 4d6, drop lowest for each D&D stat
     Optional argument straight changes to 3d6 straight
     Returns a dictionary of stats'''
-    stats = {
-        "Strength":0,
-        "Dexterity":0,
-        "Constituion":0,
-        "Intelligence":0,
-        "Wisdom":0,
-        "Charisma":0,
-    }
+    statnames = [
+        "Strength",
+        "Dexterity",
+        "Constituion",
+        "Intelligence",
+        "Wisdom",
+        "Charisma",
+    ]
+    stats = {}
     results = {
         "Strength":[],
         "Dexterity":[],
@@ -73,12 +74,16 @@ def roll_stats(straight:bool=False) -> tuple[dict, dict]:
         "Charisma":[],
     }
     if straight:
-        for stat in stats:
-            stat,result = roll(3,6)
+        for stat in statnames:
+            value,result = roll(3,6)
+            new_stat = {stat:value}
+            stats.update(new_stat)
             results[stat] = result
     else:
-        for stat in stats:
-            stat,result = lowest(4,6)
+        for stat in statnames:
+            value,result = lowest(4,6)
+            new_stat = {stat:value}
+            stats.update(new_stat)
             results[stat] = result
     return stats, results
 
@@ -91,7 +96,7 @@ def main() -> None:
     options.add_argument("-d", "--disadvantage", help="disadvantage", action="store_true")
     options.add_argument("-l", "--lowest", help="drop lowest", action="store_true")
     options.add_argument("-c","--character", help="generate character stats", action="store_true")
-    parser.add_argument("-s","straight", help="roll straight", action="store_true")
+    parser.add_argument("-s","--straight", help="roll straight", action="store_true")
     args = parser.parse_args()
 
     if args.advantage:
@@ -109,8 +114,18 @@ def main() -> None:
             stats, results = roll_stats()
         print("Stats:")
         for stat, value in stats.items():
-            mod = (value-10)//10
-            print(f"{stat}:\t{value}\tMod:\t{mod}")
+            mod = (value-10)//2
+            if value < 10:
+                value = f" {value}"
+            if mod > 0:
+                mod = f"+{mod}"
+            elif mod == 0:
+                mod = f" {mod}"
+            if stat == "Wisdom":
+                print(f"{stat}:\t\t{value}\tMod: {mod}")
+            else:
+                print(f"{stat}:\t{value}\tMod: {mod}")
+        sys.exit(0)
 
     try:
         dice = args.dice
