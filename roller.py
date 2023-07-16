@@ -22,29 +22,33 @@ def roll(count:int, die: int) -> tuple[int,list]:
 def print_results(total:int, results:list) -> None:
     '''Prints results of a die roll'''
     if len(results) <= 1:
-        print(f"Result: {results[0]}")
+        print(f"Result:\t{results[0]}")
     elif len(results) > 1:
         print("Results: ")
         i = 1
         for result in results:
-            print(f"{i}: {result}")
+            print(f"\t{i}:\t{result}")
             i += 1
-        print(f"Total: {total}")
+        print(f"Total:\t{total}")
 
-def main():
+def main() -> None:
     '''Parse args, roll di(c)e'''
     parser = argparse.ArgumentParser()
     parser.add_argument("dice")
     args = parser.parse_args()
     try:
         dice = args.dice
-        if len(dice) not in [3,4] or 'd' not in dice:
+        if len(dice) < 3 or 'd' not in dice:
+            print("length")
             raise DumbassError
         count, die = dice.split('d')
-        if not isinstance(count, int) or isinstance(die,int):
+        count = int(count)
+        die = int(die)
+        if not isinstance(count,int) or not isinstance(die,int):
+            print("type",type(count),type(die))
             raise DumbassError
-        print(f"Rolling {count} d{die}:")
-        total, result = roll(dice,count)
+        print(f"Rolling {count} d{die}")
+        total, result = roll(count,die)
         print_results(total, result)
     except DumbassError:
         print(
