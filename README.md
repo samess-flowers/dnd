@@ -2,7 +2,7 @@
 This is where Sam stores his Dungeons & Dragons scripts
 
 ## roller.py
-Roller is a dice rolling utility.  It includes library functions for rolling stats and an argparse CLI frontend for rolling dice on the commamndline.
+Roller is a dice rolling utility.  It includes library functions for rolling arbitrary dice and rolling stats, as well as an argparse CLI frontend for rolling dice on the commamndline.
 
 ```
 >/roller.py -h
