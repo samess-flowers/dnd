@@ -20,7 +20,7 @@ def roll(count:int, die: int) -> tuple[int,list]:
     total = sum(results)
     return total, results
 
-def print_results(total:int, results:list[int]) -> None:
+def print_rolls(total:int, results:list[int]) -> None:
     '''Prints results of a die roll'''
     if len(results) <= 1:
         print(f"Result:\t{results[0]}")
@@ -87,6 +87,28 @@ def roll_stats(straight:bool=False) -> tuple[dict, dict]:
             results[stat] = result
     return stats, results
 
+def print_stats(
+        results: dict[str,list[int]],
+        stats: dict[str,int],
+        print_results:bool=False,
+        ):
+    '''Print a characters stat block'''
+    print("Stats:")
+    for stat, value in stats.items():
+        mod = (value-10)//2
+        if value < 10:
+            value = f" {value}"
+        if mod > 0:
+            mod = f"+{mod}"
+        elif mod == 0:
+            mod = f" {mod}"
+        if stat == "Wisdom":
+            print(f"{stat}:\t\t{value}\tMod: {mod}")
+        else:
+            print(f"{stat}:\t{value}\tMod: {mod}")
+        if print_results:
+            print("  Rolls:\t",results[stat])
+
 def main() -> None:
     '''Parse args, roll di(c)e'''
     parser = argparse.ArgumentParser()
@@ -97,34 +119,23 @@ def main() -> None:
     options.add_argument("-l", "--lowest", help="drop lowest", action="store_true")
     options.add_argument("-c","--character", help="generate character stats", action="store_true")
     parser.add_argument("-s","--straight", help="roll straight", action="store_true")
+    parser.add_argument("-r","--results", help="show results", action="store_true")
     args = parser.parse_args()
 
     if args.advantage:
         result, results = advantage()
-        print_results(result, results)
+        print_rolls(result, results)
         sys.exit(0)
     elif args.disadvantage:
         result, results = disadvantage()
-        print_results(result,results)
+        print_rolls(result,results)
         sys.exit(0)
     elif args.character:
         if args.straight:
             stats, results = roll_stats(straight = True)
         else:
             stats, results = roll_stats()
-        print("Stats:")
-        for stat, value in stats.items():
-            mod = (value-10)//2
-            if value < 10:
-                value = f" {value}"
-            if mod > 0:
-                mod = f"+{mod}"
-            elif mod == 0:
-                mod = f" {mod}"
-            if stat == "Wisdom":
-                print(f"{stat}:\t\t{value}\tMod: {mod}")
-            else:
-                print(f"{stat}:\t{value}\tMod: {mod}")
+        print_stats(results, stats)
         sys.exit(0)
 
     try:
@@ -161,11 +172,11 @@ def main() -> None:
     if args.lowest:
         print(f"Rolling {count} d{die}, dropping lowest")
         total,result = lowest(count, die)
-        print_results(total,result)
+        print_rolls(total,result)
     else:
         print(f"Rolling {count} d{die}")
         total, result = roll(count,die)
-        print_results(total, result)
+        print_rolls(total, result)
 
 if __name__ == "__main__":
     main()
