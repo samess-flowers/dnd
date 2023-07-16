@@ -8,9 +8,6 @@ import sys
 class DumbassError(Exception):
     '''user was dumbass'''
 
-class DidNotDrop(Exception):
-    '''user was still dumbass'''
-
 def roll(count:int, die: int) -> tuple[int,list]:
     '''Roll count dice of die size,
     Returns a tuple with the total and the results'''
@@ -35,6 +32,18 @@ def print_results(total:int, results:list) -> None:
             i += 1
         print(f"Total:\t{total}")
 
+def advantage() -> tuple[int,list]:
+    '''Roll 2d20, return highest result'''
+    result,results = roll(2,20)
+    results = max(results)
+    return result, results
+
+def disadvantage() -> tuple[int, list]:
+    '''Roll 2d20, return lowest result'''
+    result,results = roll(2,20)
+    results = min(results)
+    return result, results
+
 def main() -> None:
     '''Parse args, roll di(c)e'''
     parser = argparse.ArgumentParser()
@@ -46,12 +55,12 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.advantage:
-        result = max(roll(2,20)[1])
-        print(f"Rolling advantage: {result}")
+        result, results = advantage()
+        print_results(result, results)
         sys.exit(0)
     elif args.disadvantage:
-        result = min(roll(2,20)[1])
-        print(f"Rolling disadvantage: {result}")
+        result, results = disadvantage()
+        print_results(result,results)
         sys.exit(0)
 
     try:
